@@ -1,0 +1,20 @@
+# Maintainer: PostmarketOS Porting Team
+# Target: Lenovo Tab M11 (TB311FU / poplar, MediaTek Helio G88 / MT8786 / MT6768)
+
+pkgname=linux-lenovo-tb311fu
+pkgver=6.6.142
+pkgrel=1
+pkgdesc="Downstream Linux 6.6.142 GKI kernel for Lenovo Tab M11 (TB311FU)"
+url="https://android.googlesource.com/kernel/common"
+license="GPL-2.0-only"
+arch="aarch64"
+options="!check !strip !tracedeps"
+depends=""
+source="kernel-local.tar.gz"
+
+package() {
+	mkdir -p "$pkgdir"
+	tar -xzf "$srcdir/kernel-local.tar.gz" -C "$pkgdir"
+}
+
+sha512sums="e9c4312af774d7c88badcdf57c5aec5959881101af938998c0aa971521634b6e167a604db9e44cca6c2b6f892d785f201f31cbb0a2834ecbe81b3e5c14e5c934  kernel-local.tar.gz"

@@ -1,0 +1,113 @@
+# ==============================================================================
+# 70-tb311fu.rules - Hardware Device Permissions for Lenovo Tab M11 (TB311FU)
+# Architecture: MediaTek MT6768 / MT8786 (Helio G88) + ARM Mali-G52 MP2
+# Purpose: Ubuntu Touch / Halium Container & Lomiri Session Hardware Enablement
+# Target Location: /etc/udev/rules.d/70-tb311fu.rules
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. ARM Mali GPU & MediaTek Graphics Accelerator Nodes
+# ------------------------------------------------------------------------------
+KERNEL=="mali0", GROUP="video", MODE="0666"
+KERNEL=="ged", GROUP="video", MODE="0666"
+KERNEL=="mtk_disp", GROUP="video", MODE="0660"
+KERNEL=="sw_sync", GROUP="video", MODE="0660"
+
+# Framebuffer devices
+SUBSYSTEM=="graphics", KERNEL=="fb*", GROUP="video", MODE="0660"
+
+# Direct Rendering Manager (DRM / KMS)
+SUBSYSTEM=="drm", KERNEL=="card*", GROUP="video", MODE="0660"
+SUBSYSTEM=="drm", KERNEL=="renderD*", GROUP="render", MODE="0666"
+
+# Memory Allocators (DMA-BUF Heaps & Legacy ION)
+SUBSYSTEM=="dma_heap", KERNEL=="*", GROUP="video", MODE="0666"
+KERNEL=="ion", GROUP="video", MODE="0666"
+
+# ------------------------------------------------------------------------------
+# 2. Android Binder IPC Subsystem (libhybris & Android LXC Container)
+# ------------------------------------------------------------------------------
+KERNEL=="binder", GROUP="root", MODE="0666"
+KERNEL=="hwbinder", GROUP="root", MODE="0666"
+KERNEL=="vndbinder", GROUP="root", MODE="0666"
+SUBSYSTEM=="binder", KERNEL=="*", GROUP="root", MODE="0666"
+
+# ------------------------------------------------------------------------------
+# 3. Touchscreen Digitizers, Active Stylus & Physical Input Controls
+# ------------------------------------------------------------------------------
+# Default permissions for Linux input events
+SUBSYSTEM=="input", KERNEL=="event*", GROUP="input", MODE="0660"
+
+# Himax Active Digitizer (Primary multi-touch capacitive & active pen panel)
+SUBSYSTEM=="input", ATTRS{name}=="himax-touchscreen", ENV{ID_INPUT}="1", ENV{ID_INPUT_TOUCHSCREEN}="1", GROUP="input", MODE="0660", TAG+="uaccess", SYMLINK+="input/touchscreen0"
+
+# Novatek Active Digitizer (Secondary source touch panel)
+SUBSYSTEM=="input", ATTRS{name}=="NVT-ts", ENV{ID_INPUT}="1", ENV{ID_INPUT_TOUCHSCREEN}="1", GROUP="input", MODE="0660", TAG+="uaccess", SYMLINK+="input/touchscreen0"
+
+# Lenovo Tab Pen AP500U Active Stylus Digitizer
+SUBSYSTEM=="input", ATTRS{name}=="Lenovo_Pen", ENV{ID_INPUT}="1", ENV{ID_INPUT_TABLET}="1", GROUP="input", MODE="0660", TAG+="uaccess"
+
+# Physical Hardware Buttons & Switches
+SUBSYSTEM=="input", ATTRS{name}=="mtk-kpd", ENV{ID_INPUT}="1", ENV{ID_INPUT_KEY}="1"
+SUBSYSTEM=="input", ATTRS{name}=="mtk-pmic-keys", ENV{ID_INPUT}="1", ENV{ID_INPUT_KEY}="1"
+SUBSYSTEM=="input", ATTRS{name}=="mt6768-mt6358 Headset Jack", ENV{ID_INPUT}="1", ENV{ID_INPUT_SWITCH}="1"
+SUBSYSTEM=="input", ATTRS{name}=="hall-switch-input", ENV{ID_INPUT}="1", ENV{ID_INPUT_SWITCH}="1"
+
+# Double tap wake gesture sysfs permission
+ACTION=="add", SUBSYSTEM=="input", ATTR{name}=="himax-touchscreen", RUN+="/bin/chmod 0660 /sys/touchpanel/double_tap_enable"
+
+# ------------------------------------------------------------------------------
+# 4. Display Backlight & Flashlight Sysfs Controls
+# ------------------------------------------------------------------------------
+# 11-bit PWM LCD Backlight (0..2047, factory default 1200)
+ACTION=="add", SUBSYSTEM=="leds", KERNEL=="lcd-backlight", RUN+="/bin/chmod 0666 /sys/class/leds/lcd-backlight/brightness"
+ACTION=="add", SUBSYSTEM=="leds", KERNEL=="lcd-backlight", TEST!="/sys/class/backlight/lcd-backlight", RUN+="/bin/ln -s /sys/class/leds/lcd-backlight /sys/class/backlight/lcd-backlight"
+
+# Camera Flashlight / Torch LED
+ACTION=="add", SUBSYSTEM=="leds", KERNEL=="flashlight", RUN+="/bin/chmod 0666 /sys/class/leds/flashlight/brightness"
+
+# ------------------------------------------------------------------------------
+# 5. Audio Subsystem (MediaTek MT6358 Codec & ALSA Nodes)
+# ------------------------------------------------------------------------------
+SUBSYSTEM=="sound", KERNEL=="*", GROUP="audio", MODE="0660"
+KERNEL=="mtk_audio_*", GROUP="audio", MODE="0660"
+
+# ------------------------------------------------------------------------------
+# 6. Sensors Hub & MediaTek Hardware Filter Manager
+# ------------------------------------------------------------------------------
+KERNEL=="hf_manager", GROUP="system", MODE="0660"
+KERNEL=="m_als_misc", GROUP="system", MODE="0660"
+KERNEL=="m_baro_misc", GROUP="system", MODE="0660"
+KERNEL=="m_hmd_misc", GROUP="system", MODE="0660"
+KERNEL=="m_acc_misc", GROUP="system", MODE="0660"
+KERNEL=="m_mag_misc", GROUP="system", MODE="0660"
+KERNEL=="m_gyro_misc", GROUP="system", MODE="0660"
+
+# ------------------------------------------------------------------------------
+# 7. MediaTek TEE / Trusty DRM RPC Subsystem
+# ------------------------------------------------------------------------------
+KERNEL=="teei_client", GROUP="video", MODE="0666"
+KERNEL=="teei_config", GROUP="system", MODE="0660"
+KERNEL=="tz_uree", GROUP="system", MODE="0660"
+KERNEL=="isee_tee*", GROUP="system", MODE="0660"
+
+# ------------------------------------------------------------------------------
+# 8. MediaTek Camera & ISP Subsystem
+# ------------------------------------------------------------------------------
+KERNEL=="camera*", GROUP="video", MODE="0660"
+KERNEL=="kd_camera_hw*", GROUP="video", MODE="0660"
+KERNEL=="MAINAF", GROUP="video", MODE="0660"
+KERNEL=="SUBAF", GROUP="video", MODE="0660"
+
+# ------------------------------------------------------------------------------
+# 9. MediaTek WMT / Connectivity Subsystem (Wi-Fi & Bluetooth)
+# ------------------------------------------------------------------------------
+KERNEL=="wmtWifi", GROUP="netdev", MODE="0666"
+KERNEL=="wmtdetect", GROUP="netdev", MODE="0666"
+KERNEL=="stpwmt", GROUP="netdev", MODE="0666"
+KERNEL=="stpbt", GROUP="bluetooth", MODE="0660"
+KERNEL=="stpant", GROUP="netdev", MODE="0660"
+KERNEL=="rfkill", GROUP="netdev", MODE="0660"
+SUBSYSTEM=="misc", KERNEL=="rfkill", GROUP="netdev", MODE="0660"
+SUBSYSTEM=="sound", KERNEL=="card*", ATTR{id}=="mt6768mt6358", ENV{PULSE_IGNORE}="1"
+SUBSYSTEM=="input", ATTRS{name}=="HIMAX Touch", ENV{ID_INPUT}="1", ENV{ID_INPUT_TOUCHSCREEN}="1", GROUP="input", MODE="0660", TAG+="uaccess", SYMLINK+="input/touchscreen0"

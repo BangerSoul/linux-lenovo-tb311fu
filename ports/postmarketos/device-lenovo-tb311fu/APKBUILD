@@ -1,0 +1,32 @@
+# Maintainer: PostmarketOS Porting Team
+# Target: Lenovo Tab M11 (TB311FU / poplar, MediaTek Helio G88 / MT8786 / MT6768)
+
+pkgname=device-lenovo-tb311fu
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Lenovo Tab M11 (TB311FU) postmarketOS device package"
+url="https://postmarketos.org"
+license="MIT"
+arch="aarch64"
+options="!check !archcheck"
+depends="postmarketos-base linux-lenovo-tb311fu android-tools"
+makedepends="devicepkg-dev"
+subpackages="$pkgname-nonfree-firmware:nonfree_firmware"
+source="deviceinfo"
+
+build() {
+	devicepkg_build "$startdir" "$pkgname"
+}
+
+package() {
+	devicepkg_package "$startdir" "$pkgname"
+}
+
+nonfree_firmware() {
+	pkgdesc="Firmware files for Lenovo Tab M11 (MediaTek WMT CONNSYS)"
+	depends=""
+	mkdir -p "$subpkgdir"/vendor/firmware
+	mkdir -p "$subpkgdir"/lib/firmware/postmarketos
+}
+
+sha512sums="2fe82b0cacb4253bbb5a042376b5ba786e3bfa7b76bde8dac23914b711637e2f8002b674bef90149ca60b82420733207b5002fd309905fc8e5bc703eaf4bc465  deviceinfo"

@@ -1,0 +1,40 @@
+From: Azmathulla Shaik <iamshaikhazmathulla@outlook.com>
+Subject: [PATCH] backends/drm: Disable 10-bit color formats on MTK dispsys for rotation stability
+
+MediaTek MT6768 / MT8786 dispsys DRM planes expose 10-bit formats (XR30, AR30)
+in supported plane format lists, but fail atomic commit when DRM plane rotation
+is requested in combination with 10-bit buffers.
+
+Disable 10-bit formats to force fallback to standard 24-bit True Color
+(DRM_FORMAT_XRGB8888 and DRM_FORMAT_ARGB8888), which guarantees reliable
+0°, 90°, 180°, and 270° display rotation and prevents black screen lockup.
+
+Signed-off-by: Azmathulla Shaik <iamshaikhazmathulla@outlook.com>
+---
+ src/backends/drm/drm_output.cpp | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/src/backends/drm/drm_output.cpp b/src/backends/drm/drm_output.cpp
+index e4c892a..3f1012b 100644
+--- a/src/backends/drm/drm_output.cpp
++++ b/src/backends/drm/drm_output.cpp
+@@ -285,6 +285,18 @@ QVector<uint32_t> DrmOutput::supportedFormats() const
+     for (const auto &plane : m_pipeline->planes()) {
+         formats += plane->formats();
+     }
++
++    // TB311FU / MediaTek MT6768 dispsys workaround:
++    // Remove 10-bit / 30-bit RGB formats that cause hardware rotation failures
++    formats.removeAll(DRM_FORMAT_XRGB2101010);
++    formats.removeAll(DRM_FORMAT_XBGR2101010);
++    formats.removeAll(DRM_FORMAT_ARGB2101010);
++    formats.removeAll(DRM_FORMAT_ABGR2101010);
++    formats.removeAll(DRM_FORMAT_BGRX1010102);
++    formats.removeAll(DRM_FORMAT_BGRA1010102);
++    formats.removeAll(DRM_FORMAT_RGBX1010102);
++    formats.removeAll(DRM_FORMAT_RGBA1010102);
++
+     return formats;
+ }
+-- 
+2.43.0

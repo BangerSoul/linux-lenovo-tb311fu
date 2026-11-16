@@ -1,0 +1,3 @@
+# Lenovo Tab M11 (TB311FU / poplar) Touchscreen Calibration Rule
+# Binds Himax HX83102E and Novatek NVT-ts controllers to 1:1 identity matrix under libinput/Wayland
+ACTION=="add|change", KERNEL=="event*", ATTRS{name}=="*himax-touchscreen*|*NVT-ts*|*hx83102e*", ENV{LIBINPUT_CALIBRATION_MATRIX}="1.0 0.0 0.0 0.0 1.0 0.0"

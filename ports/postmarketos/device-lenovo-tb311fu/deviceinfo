@@ -1,0 +1,18 @@
+# PostmarketOS Device Information for Lenovo Tab M11 (TB311FU / poplar)
+# Reference SoC: MediaTek Helio G88 (MT8786 / MT6768)
+
+deviceinfo_format_version="0"
+deviceinfo_name="Lenovo Tab M11"
+deviceinfo_manufacturer="Lenovo"
+deviceinfo_codename="lenovo-tb311fu"
+deviceinfo_arch="aarch64"
+deviceinfo_chassis="tablet"
+deviceinfo_screen_width="1200"
+deviceinfo_screen_height="1920"
+deviceinfo_header_version="4"
+deviceinfo_flash_pagesize="4096"
+deviceinfo_generate_bootimg="false"
+deviceinfo_initfs_compression="gzip"
+deviceinfo_drm="false"
+deviceinfo_gpu_accelerated="true"
+deviceinfo_kernel_cmdline="bootconfig console=tty0 console=ttyMT0,921600n8 androidboot.hardware=mt8786"

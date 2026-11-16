@@ -1,0 +1,24 @@
+# Compiled binaries, firmware and disk images
+*.img
+*.iso
+*.tar.gz
+*.bin
+*.so
+*.so.*
+*.ppm
+*.png
+*.apk
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build artifacts
+build/
+dist/
+*.apk.intermediate
+*.tmp
+
+# Logs
+*.log

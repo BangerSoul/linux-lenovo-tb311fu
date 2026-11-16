@@ -1,0 +1,40 @@
+#!/sbin/openrc-run
+# OpenRC service for Lenovo Tab M11 (TB311FU) MediaTek WMT Wi-Fi platform
+# Manages /dev/wmtdetect, chip ID 0x6768, NVRAM Wi-Fi calibration, and firmware serving
+
+description="MediaTek WMT Wi-Fi daemon and firmware loader for Lenovo Tab M11"
+
+command="/usr/local/bin/tb311fu-wmt"
+command_args="serve"
+command_background="yes"
+pidfile="/run/tb311fu-wmt.pid"
+
+depend() {
+	need udev
+	before networkmanager networking
+}
+
+start_pre() {
+	ebegin "Initializing MediaTek WMT Wi-Fi platform"
+	if [ -x /usr/local/bin/tb311fu-wmt ]; then
+		/usr/local/bin/tb311fu-wmt init
+	else
+		eerror "tb311fu-wmt binary not found"
+		return 1
+	fi
+	eend $?
+}
+
+start_post() {
+	ebegin "Waiting for Wi-Fi interface readiness"
+	if [ -x /usr/local/libexec/tb311fu-wifi-ready ]; then
+		/usr/local/libexec/tb311fu-wifi-ready
+	fi
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping MediaTek WMT Wi-Fi daemon"
+	start-stop-daemon --stop --pidfile "$pidfile" --signal TERM
+	eend $?
+}

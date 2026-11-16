@@ -1,0 +1,28 @@
+#!/sbin/openrc-run
+# OpenRC service for Lenovo Tab M11 (TB311FU) hardware initialization
+# Sequenced hardware bringup: PMIC efuse, GPU Panfrost, CMDQ, scanout, DVFS, IOMMU, touch, audio
+
+description="Lenovo Tab M11 (TB311FU) hardware initialization daemon"
+
+depend() {
+	need udev
+	before tinydm tb311fu-plasma display-manager
+}
+
+start() {
+	ebegin "Initializing Lenovo Tab M11 hardware (PMIC, GPU, CMDQ, scanout, DVFS, IOMMU, touch, audio)"
+	if [ -x /usr/local/libexec/tb311fu-hardware ]; then
+		/usr/local/libexec/tb311fu-hardware
+	elif [ -x /usr/libexec/tb311fu-hardware ]; then
+		/usr/libexec/tb311fu-hardware
+	else
+		eerror "tb311fu-hardware orchestrator binary not found"
+		return 1
+	fi
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping Lenovo Tab M11 hardware daemons"
+	eend 0
+}

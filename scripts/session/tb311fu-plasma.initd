@@ -1,0 +1,29 @@
+#!/sbin/openrc-run
+description="Plasma Mobile automatic session for unprivileged user"
+
+depend() {
+    need localmount udev dbus seatd
+    after tb311fu-hardware
+    before tinydm
+}
+
+start() {
+    ebegin "Starting Plasma Mobile session for @USER@"
+    start-stop-daemon --start \
+        --user @USER@ \
+        --group @GROUP@ \
+        --env HOME=@HOME@ \
+        --env XDG_SEAT=seat0 \
+        --env XDG_SESSION_TYPE=wayland \
+        --env XDG_CURRENT_DESKTOP=KDE \
+        --env XDG_RUNTIME_DIR=/run/user/@UID@ \
+        --background \
+        --exec /usr/local/bin/tb311fu-plasma-session
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping Plasma Mobile session"
+    /usr/local/libexec/tb311fu-stop-plasma
+    eend $?
+}
